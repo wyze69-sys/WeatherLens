@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCurrentWeather, getForecast, getCoordinatesByCity } from "../api/weatherApi";
+import { getCurrentWeather, getForecast, getCoordinatesByCity, getOneCall, getAirPollution } from "../api/weatherApi";
 
 export function useWeather(lat, lon, units = "metric") {
   return useQuery({
@@ -25,6 +25,18 @@ export function useForecast(lat, lon, units = "metric") {
   });
 }
 
+export function useOneCall(lat, lon, units = "metric") {
+  return useQuery({
+    queryKey: ["oneCall", lat, lon, units],
+    queryFn: () => {
+      if (lat === null || lon === null) throw new Error("Missing coordinates");
+      return getOneCall(lat, lon, units);
+    },
+    enabled: lat !== null && lon !== null,
+    staleTime: 1000 * 60 * 30,
+  });
+}
+
 export function useCitySearch(query) {
   return useQuery({
     queryKey: ["citySearch", query],
@@ -42,8 +54,7 @@ export function useAirPollution(lat, lon) {
     queryKey: ["airPollution", lat, lon],
     queryFn: () => {
       if (lat === null || lon === null) throw new Error("Missing coordinates");
-      // Import from weatherApi inline or ensure it's imported at the top
-      return import("../api/weatherApi").then(api => api.getAirPollution(lat, lon));
+      return getAirPollution(lat, lon);
     },
     enabled: lat !== null && lon !== null,
     staleTime: 1000 * 60 * 30, // Air pollution doesn't change as rapidly

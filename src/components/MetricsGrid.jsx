@@ -1,5 +1,7 @@
-import { Droplets, Wind, Gauge, Thermometer } from "lucide-react";
+import { Droplets, Wind } from "lucide-react";
 import { Skeleton } from "./Skeleton";
+import { HeatTile } from "./HeatTile";
+import { UVTile } from "./UVTile";
 
 export function MetricCard({ title, value, icon, isLoading }) {
   return (
@@ -23,18 +25,12 @@ const tileIconProps = {
   className: "text-muted",
 };
 
-export function MetricsGrid({ data, isLoading, unit }) {
+export function MetricsGrid({ data, isLoading, unit, oneCall, isLoadingOneCall }) {
   const speedUnit = unit === "metric" ? "m/s" : "mph";
-  const tempUnit = unit === "metric" ? "°C" : "°F";
-
   return (
     <div className="grid w-full grid-cols-2 gap-3">
-      <MetricCard
-        isLoading={isLoading}
-        title="Feels Like"
-        value={data ? `${Math.round(data.main.feels_like)}${tempUnit}` : ""}
-        icon={<Thermometer {...tileIconProps} />}
-      />
+      <HeatTile data={data} unit={unit} isLoading={isLoading} />
+      <UVTile oneCall={oneCall} isLoading={isLoadingOneCall} />
       <MetricCard
         isLoading={isLoading}
         title="Humidity"
@@ -46,12 +42,6 @@ export function MetricsGrid({ data, isLoading, unit }) {
         title="Wind"
         value={data ? `${data.wind.speed} ${speedUnit}` : ""}
         icon={<Wind {...tileIconProps} />}
-      />
-      <MetricCard
-        isLoading={isLoading}
-        title="Pressure"
-        value={data ? `${data.main.pressure} hPa` : ""}
-        icon={<Gauge {...tileIconProps} />}
       />
     </div>
   );
