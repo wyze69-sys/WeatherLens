@@ -27,7 +27,7 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
-      'no-unused-vars': 'warn'
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z]' }]
     },
   },
 ]
