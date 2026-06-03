@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
+const ONE_CALL_URL = "https://api.openweathermap.org/data/3.0";
 const GEO_URL = "https://api.openweathermap.org/geo/1.0";
 
 export const WeatherSchema = z.object({
@@ -72,6 +73,19 @@ export const GeocodeSchema = z.array(
   })
 ).default([]);
 
+export const MinutelyPrecipSchema = z.object({
+  lat: z.number().optional(),
+  lon: z.number().optional(),
+  timezone: z.string().optional(),
+  timezone_offset: z.number().optional(),
+  minutely: z.array(
+    z.object({
+      dt: z.number(),
+      precipitation: z.number().nonnegative().default(0),
+    })
+  ).default([]),
+});
+
 export async function getCoordinatesByCity(query) {
   const url = `${GEO_URL}/direct?q=${encodeURIComponent(query)}&limit=5&appid=${API_KEY}`;
   const res = await fetch(url);
@@ -94,6 +108,20 @@ export async function getForecast(lat, lon, units = "metric") {
   if (!res.ok) throw new Error("Failed to fetch forecast");
   const data = await res.json();
   return ForecastSchema.parse(data);
+}
+
+export async function getMinutelyPrecip(lat, lon) {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lon),
+    exclude: "current,hourly,daily,alerts",
+    appid: API_KEY,
+  });
+  const url = `${ONE_CALL_URL}/onecall?${params}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch minutely precipitation");
+  const data = await res.json();
+  return MinutelyPrecipSchema.parse(data);
 }
 
 export const AirPollutionSchema = z.object({

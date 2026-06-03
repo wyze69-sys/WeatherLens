@@ -9,6 +9,7 @@ import { SevereWeatherBanner } from "./components/SevereWeatherBanner";
 import { LifestyleInsights } from "./components/LifestyleInsights";
 import { AirQualityDial } from "./components/AirQualityDial";
 import { CelestialArc } from "./components/CelestialArc";
+import { NowcastStrip } from "./components/NowcastStrip";
 import { useWeather, useForecast } from "./hooks/useWeather";
 import { useUnit } from "./hooks/useUnit";
 import { getIconTintForWeather } from "./lib/theme";
@@ -99,6 +100,7 @@ export default function App() {
           <main className="grid grid-cols-1 gap-6 lg:grid-cols-12">
             <div className="space-y-6 lg:col-span-4">
               <CurrentWeatherCard data={weather} isLoading={loadingWeather} unit={unit} />
+              <NowcastStrip lat={coords.lat} lon={coords.lon} />
               <MetricsGrid data={weather} isLoading={loadingWeather} unit={unit} />
               <LifestyleInsights weather={weather} unit={unit} />
             </div>

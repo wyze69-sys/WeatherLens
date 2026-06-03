@@ -2,7 +2,7 @@
 
 A data-dense, bento-style weather intelligence dashboard built with React 18 and Vite. It prioritizes clarity, sleek aesthetics, and human-readable code.
 
-## ✨ What's Inside
+##  What's Inside
 
 - **Bento Core:** A modular, grid-based layout that prioritizes the most important data (current status, 48-hour forecast).
 - **Daylight Tracker:** A geometric SVG arc tracking the sun's journey, sunrise/sunset times, and total daylight duration.
@@ -12,7 +12,7 @@ A data-dense, bento-style weather intelligence dashboard built with React 18 and
 - **Global Search:** Powered by OpenWeather reverse-geocoding, with a 5-city recent history cache.
 - **Unit Toggle:** Instant °C/°F switching that persists between sessions.
 
-## 🛠️ Stack
+##  Stack
 
 - **Core:** React 18, Vite
 - **Data:** TanStack Query v5 (Caching & Background Refetching)
@@ -20,7 +20,7 @@ A data-dense, bento-style weather intelligence dashboard built with React 18 and
 - **Styles:** Tailwind CSS (Custom glass-morphism, animations, Inter font)
 - **Extras:** Lucide React (Icons), Recharts (Area charts), date-fns.
 
-## 🚀 Quick Start
+##  Quick Start
 
 1. **Install:** `npm install`
 2. **Setup:** Add your `VITE_OPENWEATHER_API_KEY` to a `.env.local` file.
@@ -28,7 +28,7 @@ A data-dense, bento-style weather intelligence dashboard built with React 18 and
 
 Open [http://localhost:5173](http://localhost:5173) to see the magic.
 
-## 🧩 Structure
+##  Structure
 
 ```text
 src/
