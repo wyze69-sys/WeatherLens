@@ -7,7 +7,7 @@ function formatUpdateTime(timestamp) {
 }
 
 export function MekongTile() {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["mekongLevels"],
     queryFn: getMekongLevels,
     staleTime: 1000 * 60 * 60,
@@ -37,9 +37,7 @@ export function MekongTile() {
         <span>
           {waterLevel !== null && dangerLevel !== null
             ? `${waterLevel.toFixed(1)}m / ${dangerLevel.toFixed(1)}m danger`
-            : isError
-              ? "MRC station unavailable"
-              : "-- / -- danger"}
+            : "-- / -- danger"}
         </span>
         <span>{phnomPenh?.timestamp ? `Updated ${formatUpdateTime(phnomPenh.timestamp)}` : "Updated --:--"}</span>
       </div>

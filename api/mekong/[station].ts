@@ -11,11 +11,20 @@ const MRC_STATIONS = {
     names: ["Kompong Cham", "Kampong Cham"],
     shortNames: ["KOM"],
   },
-};
+} as const;
 
 type StationKey = keyof typeof MRC_STATIONS;
 type StationConfig = (typeof MRC_STATIONS)[StationKey];
 type QueryStation = string | string[] | undefined;
+type MekongStatus = "normal" | "alarm" | "flood";
+type MekongPayload = {
+  station: string;
+  water_level_m: number | null;
+  status: MekongStatus;
+  alert_level_m: number | null;
+  danger_level_m: number | null;
+  timestamp: string | null;
+};
 type JsonResponse = {
   setHeader: (key: string, value: string) => void;
   status: (code: number) => { json: (payload: unknown) => void };
@@ -30,10 +39,10 @@ const MekongApiSchema = z.object({
   timestamp: z.string().nullable(),
 });
 
-const FALLBACK_STATUS = "normal";
+const FALLBACK_STATUS: MekongStatus = "normal";
 const STATIONS_XML_URL = "https://ffw.mrcmekong.org/Stations.xml";
 
-function fallbackPayload(stationConfig?: StationConfig) {
+function fallbackPayload(stationConfig?: StationConfig): MekongPayload {
   return {
     station: stationConfig?.station ?? "Mekong",
     water_level_m: null,
@@ -44,34 +53,37 @@ function fallbackPayload(stationConfig?: StationConfig) {
   };
 }
 
-function tagValue(block: string, tagName: string) {
+function tagValue(block: string, tagName: string): string | null {
   const match = block.match(new RegExp(`<${tagName}>\\s*([\\s\\S]*?)\\s*<\\/${tagName}>`, "i"));
   return match?.[1]?.trim() ?? null;
 }
 
-function numberOrNull(value: string | null) {
+function numberOrNull(value: string | null): number | null {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : null;
 }
 
-function statusForLevel(waterLevel: number | null, alarmLevel: number | null, floodLevel: number | null) {
+function statusForLevel(waterLevel: number | null, alarmLevel: number | null, floodLevel: number | null): MekongStatus {
   if (waterLevel === null) return FALLBACK_STATUS;
   if (floodLevel !== null && waterLevel >= floodLevel) return "flood";
   if (alarmLevel !== null && waterLevel >= alarmLevel) return "alarm";
   return FALLBACK_STATUS;
 }
 
-function findStationBlock(xml: string, stationConfig: StationConfig) {
+function findStationBlock(xml: string, stationConfig: StationConfig): string | undefined {
   const blocks = xml.match(/<station>[\s\S]*?<\/station>/gi) ?? [];
 
   return blocks.find((block) => {
     const name = tagValue(block, "name");
     const shortName = tagValue(block, "shortName");
-    return stationConfig.names.includes(name) || stationConfig.shortNames.includes(shortName);
+    return (
+      (name !== null && stationConfig.names.some((stationName) => stationName === name)) ||
+      (shortName !== null && stationConfig.shortNames.some((stationShortName) => stationShortName === shortName))
+    );
   });
 }
 
-function parseStation(xml: string, stationConfig: StationConfig) {
+function parseStation(xml: string, stationConfig: StationConfig): MekongPayload {
   const block = findStationBlock(xml, stationConfig);
   if (!block) return fallbackPayload(stationConfig);
 
@@ -95,7 +107,7 @@ function isStationKey(value: string | undefined): value is StationKey {
   return Boolean(value && value in MRC_STATIONS);
 }
 
-async function readStation(station: QueryStation) {
+async function readStation(station: QueryStation): Promise<MekongPayload> {
   const stationKey = Array.isArray(station) ? station[0] : station;
   const stationConfig = isStationKey(stationKey) ? MRC_STATIONS[stationKey] : MRC_STATIONS["phnom-penh-port"];
 

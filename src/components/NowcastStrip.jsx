@@ -60,7 +60,13 @@ export function NowcastStrip({ lat, lon }) {
   return (
     <section className="field-panel p-3" aria-label="60-minute rain nowcast">
       <div className="h-12 w-full">
-        <svg className="h-full w-full" viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} preserveAspectRatio="none" role="img" aria-label={rainSummary}>
+        <svg
+          className="h-full w-full"
+          viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+          preserveAspectRatio="none"
+          role="img"
+          aria-label={rainSummary}
+        >
           <polyline
             fill="none"
             points={polylinePoints}

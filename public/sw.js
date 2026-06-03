@@ -11,7 +11,13 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => ![APP_CACHE, ASSET_CACHE, API_CACHE].includes(key)).map((key) => caches.delete(key))))
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((key) => ![APP_CACHE, ASSET_CACHE, API_CACHE].includes(key))
+          .map((key) => caches.delete(key))
+      )
+    )
   );
   self.clients.claim();
 });
@@ -27,7 +33,12 @@ async function staleWhileRevalidate(request) {
       if (response.ok) {
         const headers = new Headers(response.headers);
         headers.set("sw-cache-time", String(Date.now()));
-        await cache.put(request, new Response(await response.clone().blob(), { status: response.status, statusText: response.statusText, headers }));
+        const cachedResponse = new Response(await response.clone().blob(), {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+        await cache.put(request, cachedResponse);
       }
       return response;
     })
@@ -52,7 +63,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   const isWeatherApi = url.hostname === "api.openweathermap.org";
   const isMekongApi = url.origin === self.location.origin && url.pathname.startsWith("/api/mekong/");
-  const isStaticAsset = url.origin === self.location.origin && ["font", "image", "manifest", "script", "style"].includes(event.request.destination);
+  const isStaticAsset =
+    url.origin === self.location.origin &&
+    ["font", "image", "manifest", "script", "style"].includes(event.request.destination);
 
   if (isWeatherApi || isMekongApi) {
     event.respondWith(staleWhileRevalidate(event.request));

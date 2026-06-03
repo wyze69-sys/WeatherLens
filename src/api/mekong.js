@@ -49,5 +49,5 @@ async function fetchStationLevel(stationConfig) {
 export async function getMekongLevels() {
   const levels = await Promise.all(MRC_STATIONS.map(fetchStationLevel));
   const parsed = MekongLevelsSchema.safeParse(levels);
-  return parsed.success ? parsed.data : MRC_STATIONS.map(fallbackLevel);
+  return parsed.success ? parsed.data : MRC_STATIONS.map((stationConfig) => fallbackLevel(stationConfig));
 }
