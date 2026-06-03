@@ -17,7 +17,7 @@ A data-dense, bento-style weather intelligence dashboard built with React 18 and
 - **Core:** React 18, Vite
 - **Data:** TanStack Query v5 (Caching & Background Refetching)
 - **Validation:** Zod (Type-safe schemas for OpenWeather API)
-- **Styles:** Tailwind CSS (Custom glass-morphism, animations, Inter font)
+- **Styles:** Tailwind CSS with the Field Station system: dark surfaces, 1px borders, General Sans, and JetBrains Mono.
 - **Extras:** Lucide React (Icons), Recharts (Area charts), date-fns.
 
 ##  Quick Start
@@ -26,7 +26,7 @@ A data-dense, bento-style weather intelligence dashboard built with React 18 and
 2. **Setup:** Add your `VITE_OPENWEATHER_API_KEY` to a `.env.local` file.
 3. **Run:** `npm run dev`
 
-Open [http://localhost:5173](http://localhost:5173) to see the magic.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ##  Structure
 

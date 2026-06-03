@@ -13,8 +13,10 @@ export function MekongTile() {
     staleTime: 1000 * 60 * 60,
   });
   const phnomPenh = data?.find((level) => level.station === "Phnom Penh Port") ?? data?.[0];
-  const percent = phnomPenh ? Math.min(100, Math.max(0, (phnomPenh.level / phnomPenh.dangerLevel) * 100)) : 0;
-  const danger = phnomPenh && phnomPenh.level >= phnomPenh.dangerLevel;
+  const waterLevel = phnomPenh?.water_level_m ?? null;
+  const dangerLevel = phnomPenh?.danger_level_m ?? null;
+  const percent = waterLevel !== null && dangerLevel ? Math.min(100, Math.max(0, (waterLevel / dangerLevel) * 100)) : 0;
+  const danger = phnomPenh?.status === "flood";
 
   return (
     <section className="rounded-field border border-border bg-surface p-4">
@@ -24,7 +26,7 @@ export function MekongTile() {
       </div>
 
       <p className="field-value text-[32px] font-semibold leading-none text-accent-sky">
-        {isLoading || !phnomPenh ? "--" : phnomPenh.level.toFixed(1)}<span className="text-lg">m</span>
+        {isLoading || waterLevel === null ? "--" : waterLevel.toFixed(1)}<span className="text-lg">m</span>
       </p>
 
       <div className="mt-4 h-2 overflow-hidden rounded-sm bg-border">
@@ -32,8 +34,14 @@ export function MekongTile() {
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted">
-        <span>{phnomPenh ? `${phnomPenh.level.toFixed(1)}m / ${phnomPenh.dangerLevel.toFixed(1)}m danger` : isError ? "MRC station unavailable" : "-- / -- danger"}</span>
-        <span>{phnomPenh ? `Updated ${formatUpdateTime(phnomPenh.timestamp)}` : "Updated --:--"}</span>
+        <span>
+          {waterLevel !== null && dangerLevel !== null
+            ? `${waterLevel.toFixed(1)}m / ${dangerLevel.toFixed(1)}m danger`
+            : isError
+              ? "MRC station unavailable"
+              : "-- / -- danger"}
+        </span>
+        <span>{phnomPenh?.timestamp ? `Updated ${formatUpdateTime(phnomPenh.timestamp)}` : "Updated --:--"}</span>
       </div>
     </section>
   );

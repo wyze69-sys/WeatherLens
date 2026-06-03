@@ -20,7 +20,7 @@ export default {
         "card-foreground": "#E8EAED",
       },
       fontFamily: {
-        sans: ['"General Sans"', "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "sans-serif"],
+        sans: ['"General Sans"', "system-ui"],
         mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", '"Liberation Mono"', "monospace"],
       },
       borderRadius: {
