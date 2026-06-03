@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
+import { formatSolarTime, getCivilTwilight, getGoldenHourWindows } from "../lib/sunCalc";
 
 export function CelestialArc({ sunrise, sunset, timezoneOffset }) {
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
@@ -26,6 +27,9 @@ export function CelestialArc({ sunrise, sunset, timezoneOffset }) {
     const m = d.getUTCMinutes();
     return `${h % 12 || 12}:${m.toString().padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
   };
+
+  const civil = getCivilTwilight(sunrise, sunset);
+  const golden = getGoldenHourWindows(sunrise, sunset);
 
   const angle = Math.PI - (percentage * Math.PI);
   const cx = 100 + 80 * Math.cos(angle);
@@ -71,6 +75,12 @@ export function CelestialArc({ sunrise, sunset, timezoneOffset }) {
             <span className="field-value text-base font-semibold text-foreground">{durationHours}h {durationMins}m</span>
             {!isNight && <span> • {Math.floor(remainingSeconds / 3600)}h {Math.floor((remainingSeconds % 3600) / 60)}m remaining</span>}
           </p>
+          {civil && golden && (
+            <div className="mt-3 space-y-1 text-xs text-muted">
+              <p>Civil: <span className="font-mono text-foreground">{formatSolarTime(civil.start, timezoneOffset)} — {formatSolarTime(civil.end, timezoneOffset)}</span></p>
+              <p>Golden: <span className="font-mono text-foreground">{formatSolarTime(golden.morning.start, timezoneOffset)}-{formatSolarTime(golden.morning.end, timezoneOffset)}, {formatSolarTime(golden.evening.start, timezoneOffset)}-{formatSolarTime(golden.evening.end, timezoneOffset)}</span></p>
+            </div>
+          )}
         </div>
       </div>
     </section>

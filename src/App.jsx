@@ -3,6 +3,9 @@ import { Cloud } from "lucide-react";
 import { SearchAutocomplete } from "./components/SearchAutocomplete";
 import { CurrentWeatherCard } from "./components/CurrentWeatherCard";
 import { MetricsGrid } from "./components/MetricsGrid";
+import { MekongTile } from "./components/MekongTile";
+import { ProvinceCompareTable } from "./components/ProvinceCompareTable";
+import { OfflineBadge } from "./components/OfflineBadge";
 import { ForecastChart } from "./components/ForecastChart";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SevereWeatherBanner } from "./components/SevereWeatherBanner";
@@ -10,10 +13,10 @@ import { LifestyleInsights } from "./components/LifestyleInsights";
 import { AirQualityDial } from "./components/AirQualityDial";
 import { CelestialArc } from "./components/CelestialArc";
 import { NowcastStrip } from "./components/NowcastStrip";
-import { useWeather, useForecast } from "./hooks/useWeather";
+import { useWeather, useForecast, useOneCall } from "./hooks/useWeather";
 import { useUnit } from "./hooks/useUnit";
 import { getIconTintForWeather } from "./lib/theme";
-import { CAMBODIA_PROVINCES } from "./lib/provinces";
+import { useProvinces } from "./hooks/useProvinces";
 
 const DEFAULT_PP = { lat: 11.5564, lon: 104.9282 };
 
@@ -26,6 +29,8 @@ export default function App() {
   const { unit, setUnit } = useUnit();
   const { data: weather, isLoading: loadingWeather, error: weatherError } = useWeather(coords.lat, coords.lon, unit);
   const { data: forecast, isLoading: loadingForecast } = useForecast(coords.lat, coords.lon, unit);
+  const { data: oneCall, isLoading: loadingOneCall } = useOneCall(coords.lat, coords.lon, unit);
+  const { provinces, pinnedProvinces, pinnedProvinceData, togglePinnedProvince } = useProvinces(unit);
 
   if (weatherError) throw weatherError;
 
@@ -74,24 +79,42 @@ export default function App() {
             <h2 className="field-label">Cambodia Provinces</h2>
             <div className="h-px flex-1 bg-border" />
           </div>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-            {CAMBODIA_PROVINCES.map((p) => {
-              const active = Math.abs(coords.lat - p.lat) < 0.01;
-              return (
-                <button
-                  key={p.name}
-                  onClick={() => setCoords({ lat: p.lat, lon: p.lon })}
-                  className={`flex-shrink-0 rounded-md border p-2 px-3 text-xs font-medium transition-colors duration-150 ${
-                    active
-                      ? "border-accent-sky bg-accent-sky text-black"
-                      : "border-border bg-surface text-muted hover:border-accent-sky hover:text-foreground"
-                  }`}
-                >
-                  {p.name}
-                </button>
-              );
-            })}
-          </div>
+          {pinnedProvinces.length >= 2 ? (
+            <ProvinceCompareTable
+              provinces={pinnedProvinceData}
+              unit={unit}
+              onSelectProvince={(p) => setCoords({ lat: p.lat, lon: p.lon })}
+              onTogglePin={togglePinnedProvince}
+            />
+          ) : (
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+              {provinces.map((p) => {
+                const active = Math.abs(coords.lat - p.lat) < 0.01;
+                const pinned = pinnedProvinces.some((province) => province.name === p.name);
+                return (
+                  <div
+                    key={p.name}
+                    className={`flex flex-shrink-0 items-center gap-2 rounded-md border p-2 px-3 text-xs font-medium transition-colors duration-150 ${
+                      active
+                        ? "border-accent-sky bg-accent-sky text-black"
+                        : "border-border bg-surface text-muted hover:border-accent-sky hover:text-foreground"
+                    }`}
+                  >
+                    <button onClick={() => setCoords({ lat: p.lat, lon: p.lon })}>{p.name}</button>
+                    <button
+                      aria-label={`${pinned ? "Unpin" : "Pin"} ${p.name}`}
+                      onClick={() => togglePinnedProvince(p)}
+                      className={`rounded-sm border px-1.5 py-0.5 text-[10px] uppercase tracking-[0.16em] ${
+                        pinned ? "border-black/40 text-black" : "border-border text-accent-sky"
+                      }`}
+                    >
+                      {pinned ? "Pinned" : "Pin"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         <SevereWeatherBanner weather={weather} />
@@ -101,7 +124,8 @@ export default function App() {
             <div className="space-y-6 lg:col-span-4">
               <CurrentWeatherCard data={weather} isLoading={loadingWeather} unit={unit} />
               <NowcastStrip lat={coords.lat} lon={coords.lon} />
-              <MetricsGrid data={weather} isLoading={loadingWeather} unit={unit} />
+              <MetricsGrid data={weather} isLoading={loadingWeather} unit={unit} oneCall={oneCall} isLoadingOneCall={loadingOneCall} />
+              <MekongTile />
               <LifestyleInsights weather={weather} unit={unit} />
             </div>
 
@@ -115,6 +139,8 @@ export default function App() {
             </div>
           </main>
         </ErrorBoundary>
+
+        <OfflineBadge />
 
         <footer className="border-t border-border pb-8 pt-6 text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-muted">
           Powered by OpenWeather • Updated {weather ? new Date(weather.dt * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--"}

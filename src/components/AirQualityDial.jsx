@@ -1,6 +1,7 @@
 import { useAirPollution } from "../hooks/useWeather";
 import { Activity, Gauge, Loader2 } from "lucide-react";
 import clsx from "clsx";
+import { getAqiAction } from "../lib/aqiActions";
 
 const AQI_LEVELS = {
   1: { label: "Good", color: "bg-accent-sky", text: "text-accent-sky", desc: "Air quality is ideal for all." },
@@ -39,6 +40,7 @@ export function AirQualityDial({ lat, lon }) {
   const level = AQI_LEVELS[aqi] || AQI_LEVELS[1];
   const activeSegment = Math.min(SEGMENTS.length - 1, Math.max(0, aqi - 1));
   const StatusIcon = aqi <= 2 ? Gauge : Activity;
+  const actionLine = getAqiAction(aqi, components?.pm2_5);
 
   return (
     <section className="field-panel flex h-full min-h-[300px] flex-col p-5">
@@ -58,6 +60,7 @@ export function AirQualityDial({ lat, lon }) {
       <div className="mb-6">
         <p className="field-label">AQI</p>
         <p className="field-value mt-1 text-5xl font-semibold leading-none text-accent-sky">{aqi}</p>
+        <p className="mt-2 text-xs text-muted">{actionLine}</p>
       </div>
 
       <div className="mb-5 grid grid-cols-4 gap-1" aria-label={`Air quality is ${level.label}`}>

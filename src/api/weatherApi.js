@@ -46,6 +46,7 @@ export const ForecastSchema = z.object({
       main: z.object({
         temp: z.number(),
       }),
+      pop: z.number().optional(),
       weather: z.array(
         z.object({
           id: z.number(),
@@ -72,6 +73,13 @@ export const GeocodeSchema = z.array(
     state: z.string().optional(),
   })
 ).default([]);
+
+export const OneCallSchema = z.object({
+  current: z.object({
+    uvi: z.number().optional(),
+  }).optional(),
+  daily: z.array(z.object({ uvi: z.number().optional() })).optional(),
+}).passthrough();
 
 export const MinutelyPrecipSchema = z.object({
   lat: z.number().optional(),
@@ -108,6 +116,21 @@ export async function getForecast(lat, lon, units = "metric") {
   if (!res.ok) throw new Error("Failed to fetch forecast");
   const data = await res.json();
   return ForecastSchema.parse(data);
+}
+
+export async function getOneCall(lat, lon, units = "metric") {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lon),
+    units,
+    exclude: "minutely,hourly,alerts",
+    appid: API_KEY,
+  });
+  const url = `${ONE_CALL_URL}/onecall?${params}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch One Call data");
+  const data = await res.json();
+  return OneCallSchema.parse(data);
 }
 
 export async function getMinutelyPrecip(lat, lon) {
