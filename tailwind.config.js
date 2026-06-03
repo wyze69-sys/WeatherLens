@@ -7,14 +7,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: 'var(--bg-color)',
-        foreground: 'var(--text-color)',
-        card: 'var(--card-bg)',
-        'card-foreground': 'var(--card-text)',
+        background: "#0B0E13",
+        surface: "#141821",
+        elevated: "#1A1F29",
+        foreground: "#E8EAED",
+        muted: "#9AA0A6",
+        border: "#252B36",
+        "accent-sky": "#7DD3FC",
+        "accent-sun": "#FACC15",
+        danger: "#EF4444",
+        card: "#141821",
+        "card-foreground": "#E8EAED",
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-      }
+        sans: ['"General Sans"', "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "sans-serif"],
+        mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", '"Liberation Mono"', "monospace"],
+      },
+      borderRadius: {
+        field: "8px",
+      },
     },
   },
   plugins: [],

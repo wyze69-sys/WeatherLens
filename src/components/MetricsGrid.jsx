@@ -1,52 +1,57 @@
-import { Droplets, Wind, Gauge, Eye } from "lucide-react";
+import { Droplets, Wind, Gauge, Thermometer } from "lucide-react";
 import { Skeleton } from "./Skeleton";
 
 export function MetricCard({ title, value, icon, isLoading }) {
   return (
-    <div className="glass-card flex items-center gap-4 p-5">
-      <div className="p-3 bg-white/10 rounded-xl">
+    <div className="field-panel flex min-h-24 flex-col justify-between p-4">
+      <div className="flex items-center gap-2 text-muted">
         {icon}
+        <span className="field-label">{title}</span>
       </div>
-      <div className="flex flex-col">
-        <span className="text-sm font-medium opacity-70 uppercase tracking-wider">{title}</span>
-        {isLoading ? (
-          <Skeleton className="h-7 w-20 mt-1" />
-        ) : (
-          <span className="text-xl font-bold">{value}</span>
-        )}
-      </div>
+      {isLoading ? (
+        <Skeleton className="mt-4 h-7 w-20" />
+      ) : (
+        <span className="field-value mt-4 text-2xl font-semibold">{value}</span>
+      )}
     </div>
   );
 }
 
+const tileIconProps = {
+  size: 16,
+  strokeWidth: 1.75,
+  className: "text-muted",
+};
+
 export function MetricsGrid({ data, isLoading, unit }) {
   const speedUnit = unit === "metric" ? "m/s" : "mph";
+  const tempUnit = unit === "metric" ? "°C" : "°F";
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <div className="grid w-full grid-cols-2 gap-3">
+      <MetricCard
+        isLoading={isLoading}
+        title="Feels Like"
+        value={data ? `${Math.round(data.main.feels_like)}${tempUnit}` : ""}
+        icon={<Thermometer {...tileIconProps} />}
+      />
       <MetricCard
         isLoading={isLoading}
         title="Humidity"
         value={data ? `${data.main.humidity}%` : ""}
-        icon={<Droplets className="w-6 h-6 text-blue-300" />}
+        icon={<Droplets {...tileIconProps} />}
       />
       <MetricCard
         isLoading={isLoading}
         title="Wind"
         value={data ? `${data.wind.speed} ${speedUnit}` : ""}
-        icon={<Wind className="w-6 h-6 text-teal-300" />}
+        icon={<Wind {...tileIconProps} />}
       />
       <MetricCard
         isLoading={isLoading}
         title="Pressure"
         value={data ? `${data.main.pressure} hPa` : ""}
-        icon={<Gauge className="w-6 h-6 text-purple-300" />}
-      />
-      <MetricCard
-        isLoading={isLoading}
-        title="Visibility"
-        value={data ? `${(data.visibility / 1000).toFixed(1)} km` : ""}
-        icon={<Eye className="w-6 h-6 text-amber-300" />}
+        icon={<Gauge {...tileIconProps} />}
       />
     </div>
   );

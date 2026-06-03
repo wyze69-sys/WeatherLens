@@ -4,7 +4,7 @@ import { AlertTriangle, RefreshCcw } from "lucide-react";
 export class ErrorBoundary extends Component {
   state = {
     hasError: false,
-    error: null
+    error: null,
   };
 
   static getDerivedStateFromError(error) {
@@ -14,17 +14,17 @@ export class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] glass-card text-center p-8">
-          <AlertTriangle className="w-16 h-16 text-red-500 mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
-          <p className="text-sm opacity-80 mb-6 max-w-md">
+        <div className="field-panel flex min-h-[400px] flex-col items-center justify-center p-8 text-center">
+          <AlertTriangle className="mb-4 text-accent-sun" size={20} strokeWidth={1.75} />
+          <h2 className="mb-2 text-2xl font-semibold">Something went wrong</h2>
+          <p className="mb-6 max-w-md text-sm text-muted">
             {this.state.error?.message || "An unexpected error occurred while rendering the dashboard."}
           </p>
           <button
-             onClick={() => window.location.reload()}
-            className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full transition-all"
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-2 rounded-md bg-accent-sky px-4 py-2 font-medium text-black transition-colors duration-150 hover:bg-sky-300"
           >
-            <RefreshCcw className="w-4 h-4" />
+            <RefreshCcw size={18} strokeWidth={1.75} />
             Reload Dashboard
           </button>
         </div>

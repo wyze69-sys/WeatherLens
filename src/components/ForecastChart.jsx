@@ -1,13 +1,13 @@
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { format } from "date-fns";
 import { Skeleton } from "./Skeleton";
 
 export function ForecastChart({ data, isLoading, unit }) {
   if (isLoading) {
     return (
-      <div className="glass-card w-full h-[350px] p-6 flex flex-col">
-        <Skeleton className="h-6 w-48 mb-6" />
-        <Skeleton className="flex-1 w-full" />
+      <div className="field-panel flex h-[350px] w-full flex-col p-5">
+        <Skeleton className="mb-6 h-5 w-52" />
+        <Skeleton className="w-full flex-1" />
       </div>
     );
   }
@@ -23,43 +23,45 @@ export function ForecastChart({ data, isLoading, unit }) {
   })).slice(0, 16);
 
   return (
-    <div className="glass-card w-full h-[350px] p-6 flex flex-col">
-      <h3 className="text-lg font-semibold mb-6 tracking-tight">48-Hour Temperature Trend</h3>
-      <div className="flex-1 w-full min-h-0 text-current">
+    <section className="field-panel flex h-[350px] w-full flex-col p-5">
+      <div className="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <p className="field-label">48-Hour Forecast</p>
+          <h3 className="mt-1 text-lg font-semibold tracking-tight">Temperature Trend</h3>
+        </div>
+        <p className="font-mono text-xs text-muted">{tempUnit}</p>
+      </div>
+      <div className="min-h-0 w-full flex-1 text-foreground">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="currentColor" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="currentColor" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+          <LineChart data={chartData} margin={{ top: 10, right: 12, left: -18, bottom: 0 }}>
+            <CartesianGrid stroke="#252B36" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="time"
-              stroke="currentColor"
-              fontSize={12}
+              stroke="#9AA0A6"
+              fontSize={11}
               tickLine={false}
-              axisLine={false}
-              tick={{ fill: "currentColor", opacity: 0.7 }}
+              axisLine={{ stroke: "#252B36" }}
+              tick={{ fill: "#9AA0A6", fontFamily: "JetBrains Mono" }}
               dy={10}
             />
             <YAxis
-              stroke="currentColor"
-              fontSize={12}
+              stroke="#9AA0A6"
+              fontSize={11}
               tickLine={false}
-              axisLine={false}
-              tick={{ fill: "currentColor", opacity: 0.7 }}
+              axisLine={{ stroke: "#252B36" }}
+              tick={{ fill: "#9AA0A6", fontFamily: "JetBrains Mono" }}
               tickFormatter={(value) => `${value}°`}
             />
             <Tooltip
+              cursor={{ stroke: "#252B36", strokeWidth: 1 }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="bg-slate-900/90 text-white border border-white/10 backdrop-blur-md px-3 py-2 rounded-lg shadow-xl">
-                      <p className="text-xs opacity-70 mb-1">{payload[0].payload.fullDate}</p>
-                      <p className="font-semibold text-lg">
+                    <div className="rounded-field border border-border bg-elevated px-3 py-2 text-foreground">
+                      <p className="mb-1 text-xs text-muted">{payload[0].payload.fullDate}</p>
+                      <p className="field-value text-lg font-semibold text-accent-sky">
                         {payload[0].value}
-                        <span className="text-sm font-normal opacity-80">{tempUnit}</span>
+                        <span className="ml-1 text-xs text-muted">{tempUnit}</span>
                       </p>
                     </div>
                   );
@@ -67,17 +69,17 @@ export function ForecastChart({ data, isLoading, unit }) {
                 return null;
               }}
             />
-            <Area
+            <Line
               type="monotone"
               dataKey="temp"
-              stroke="currentColor"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#tempGradient)"
+              stroke="#7DD3FC"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4, fill: "#7DD3FC", stroke: "#0B0E13", strokeWidth: 2 }}
             />
-          </AreaChart>
+          </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </section>
   );
 }

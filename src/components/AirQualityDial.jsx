@@ -1,94 +1,92 @@
 import { useAirPollution } from "../hooks/useWeather";
-import { Loader2, Wind, ShieldCheck, AlertCircle, Activity } from "lucide-react";
+import { Activity, Gauge, Loader2 } from "lucide-react";
 import clsx from "clsx";
 
 const AQI_LEVELS = {
-  1: { label: "Good", color: "text-green-400", bg: "bg-green-400", desc: "Air quality is ideal for all." },
-  2: { label: "Fair", color: "text-yellow-400", bg: "bg-yellow-400", desc: "Acceptable air quality." },
-  3: { label: "Moderate", color: "text-orange-400", bg: "bg-orange-400", desc: "Sensitive groups should limit time outside." },
-  4: { label: "Poor", color: "text-red-400", bg: "bg-red-400", desc: "Unhealthy for everyone." },
-  5: { label: "Very Poor", color: "text-purple-400", bg: "bg-purple-400", desc: "Health alert: everyone may experience effects." },
+  1: { label: "Good", color: "bg-accent-sky", text: "text-accent-sky", desc: "Air quality is ideal for all." },
+  2: { label: "Moderate", color: "bg-accent-sun", text: "text-accent-sun", desc: "Acceptable air quality." },
+  3: { label: "Unhealthy", color: "bg-danger", text: "text-red-300", desc: "Sensitive groups should limit time outside." },
+  4: { label: "Unhealthy", color: "bg-danger", text: "text-red-300", desc: "Unhealthy for everyone." },
+  5: { label: "Very Unhealthy", color: "bg-danger", text: "text-red-300", desc: "Health alert: everyone may experience effects." },
 };
+
+const SEGMENTS = [
+  { label: "Good", color: "bg-accent-sky" },
+  { label: "Moderate", color: "bg-accent-sun" },
+  { label: "Unhealthy", color: "bg-danger" },
+  { label: "Very Unhealthy", color: "bg-danger" },
+];
 
 export function AirQualityDial({ lat, lon }) {
   const { data, isLoading, isError } = useAirPollution(lat, lon);
 
   if (isLoading) return (
-    <div className="glass-card flex flex-col items-center justify-center min-h-[300px] gap-4">
-      <Loader2 className="w-10 h-10 animate-spin text-white/20" />
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-20">Analysing Air...</p>
+    <div className="field-panel flex min-h-[300px] flex-col items-center justify-center gap-4 p-5">
+      <Loader2 className="animate-spin text-muted" size={20} strokeWidth={1.75} />
+      <p className="field-label">Analysing Air</p>
     </div>
   );
 
   if (isError || !data?.list?.[0]) return (
-    <div className="glass-card flex flex-col items-center justify-center min-h-[300px] opacity-20">
-      <Activity className="w-12 h-12 mb-4" />
-      <p className="text-sm font-bold">Station Offline</p>
+    <div className="field-panel flex min-h-[300px] flex-col items-center justify-center p-5 text-muted">
+      <Activity className="mb-4" size={20} strokeWidth={1.75} />
+      <p className="text-sm font-semibold">Station Offline</p>
     </div>
   );
 
   const { main, components } = data.list[0];
   const aqi = main.aqi;
   const level = AQI_LEVELS[aqi] || AQI_LEVELS[1];
-  
-  const circumference = 2 * Math.PI * 40;
-  const offset = circumference - (aqi / 5) * circumference;
+  const activeSegment = Math.min(SEGMENTS.length - 1, Math.max(0, aqi - 1));
+  const StatusIcon = aqi <= 2 ? Gauge : Activity;
 
   return (
-    <div className="glass-card flex flex-col h-full group relative overflow-hidden">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-            <Wind className="w-5 h-5 opacity-60" />
-          </div>
+    <section className="field-panel flex h-full min-h-[300px] flex-col p-5">
+      <div className="mb-7 flex items-start justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Gauge className="text-muted" size={20} strokeWidth={1.75} />
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest opacity-60">Air Quality</h3>
-            <p className="text-xs font-medium opacity-40">Live Pollutants</p>
+            <p className="field-label">Air Quality Gauge</p>
+            <h3 className="text-base font-semibold tracking-tight">Live pollutants</h3>
           </div>
         </div>
-        <div className={clsx("px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/5 shadow-inner", level.color)}>
-          INDEX {aqi}
-        </div>
+        <span className={clsx("rounded-md border border-border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]", level.text)}>
+          {level.label}
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1 items-center relative z-10">
-        <div className="relative flex justify-center scale-110">
-          <svg className="w-32 h-32 -rotate-90 overflow-visible" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="white" strokeWidth="8" strokeOpacity="0.05" />
-            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className={clsx("transition-all duration-1000", level.color.replace('text-', 'stroke-'))} />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
-            <span className="text-4xl font-black leading-none">{aqi}</span>
-            <span className={clsx("text-[9px] font-black uppercase tracking-widest mt-1", level.color)}>{level.label}</span>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex items-start gap-3 bg-white/5 rounded-2xl p-4 border border-white/5">
-            {aqi <= 2 ? <ShieldCheck className="w-5 h-5 text-green-400 shrink-0" /> : <AlertCircle className="w-5 h-5 text-orange-400 shrink-0" />}
-            <p className="text-xs font-semibold opacity-90 leading-snug">{level.desc}</p>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { val: components.pm2_5, lab: "PM2.5" },
-              { val: components.pm10, lab: "PM10" },
-              { val: components.no2, lab: "NO2" },
-              { val: components.o3 || components.oz, lab: "O3" }
-            ].map((p, i) => (
-              <div key={i} className="bg-white/5 rounded-xl p-3 border border-white/5 group-hover:bg-white/10 transition-colors">
-                <p className="text-[8px] font-black opacity-30 uppercase tracking-[0.1em] mb-1">{p.lab}</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-sm font-bold">{Math.round(p.val ?? 0)}</span>
-                  <span className="text-[8px] opacity-40 font-medium">µg/m³</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="mb-6">
+        <p className="field-label">AQI</p>
+        <p className="field-value mt-1 text-5xl font-semibold leading-none text-accent-sky">{aqi}</p>
       </div>
-      
-      <div className={clsx("absolute -bottom-20 -right-20 w-64 h-64 rounded-full blur-[100px] opacity-20 pointer-events-none transition-all duration-1000 group-hover:scale-125", level.bg)} />
-    </div>
+
+      <div className="mb-5 grid grid-cols-4 gap-1" aria-label={`Air quality is ${level.label}`}>
+        {SEGMENTS.map((segment, index) => (
+          <div key={segment.label} className="space-y-2">
+            <div className={clsx("h-3 rounded-sm border border-border", index <= activeSegment ? segment.color : "bg-elevated")} />
+            <p className="truncate text-[9px] font-medium text-muted">{segment.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mb-5 flex items-start gap-3 rounded-field border border-border bg-elevated p-3">
+        <StatusIcon className={aqi <= 2 ? "shrink-0 text-muted" : "shrink-0 text-accent-sun"} size={18} strokeWidth={1.75} />
+        <p className="text-sm leading-snug text-foreground">{level.desc}</p>
+      </div>
+
+      <div className="mt-auto grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-xs text-muted">
+        {[
+          { val: components.pm2_5, lab: "PM2.5" },
+          { val: components.pm10, lab: "PM10" },
+          { val: components.no2, lab: "NO2" },
+          { val: components.o3 || components.oz, lab: "O3" },
+        ].map((p) => (
+          <p key={p.lab}>
+            <span className="font-semibold text-muted">{p.lab}</span>{" "}
+            <span className="font-mono text-foreground">{Math.round(p.val ?? 0)}</span> µg/m³
+          </p>
+        ))}
+      </div>
+    </section>
   );
 }

@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,56 +7,55 @@
 
 @layer base {
   :root {
-    --bg-color: #0f172a;
-    --text-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.05);
-    --card-border: rgba(255, 255, 255, 0.1);
+    --bg-color: #0B0E13;
+    --surface-color: #141821;
+    --elevated-color: #1A1F29;
+    --text-color: #E8EAED;
+    --muted-color: #9AA0A6;
+    --accent-sky: #7DD3FC;
+    --accent-sun: #FACC15;
+    --danger-color: #EF4444;
+    --border-color: #252B36;
+  }
+
+  html {
+    background: var(--bg-color);
   }
 
   body {
-    @apply antialiased selection:bg-white/20;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color 0.8s ease;
-    min-height: 100vh;
+    @apply min-h-screen bg-background text-foreground antialiased selection:bg-accent-sky selection:text-black;
+    font-family: "General Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  button,
+  input {
+    font: inherit;
   }
 }
 
-.glass-card {
-  @apply backdrop-blur-xl border border-white/10 shadow-2xl rounded-[2rem] p-6 transition-all duration-500 scale-100;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+@layer components {
+  .field-panel {
+    @apply rounded-field border border-border bg-surface;
+  }
+
+  .field-panel-elevated {
+    @apply rounded-field border border-border bg-elevated;
+  }
+
+  .field-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-muted;
+  }
+
+  .field-value {
+    @apply font-mono tabular-nums text-foreground;
+  }
 }
 
-.glass-card:hover {
-  @apply ring-1 ring-white/20 translate-y-[-4px] border-white/20;
-}
-
-/* Province Scroll Strip Styling */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* Staggered Entrance Animations */
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-in {
-  animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-}
-
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 3s infinite ease-in-out;
 }
